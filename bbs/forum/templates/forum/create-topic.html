@@ -1,0 +1,95 @@
+{% extends 'base-with-sidebar.html' %}
+{% load i18n %}
+{% block left %}
+<div class="bbs_contenttt bbs_post mt10">
+    <div class="bbs_post_add">
+       <!-- <a href="{% url 'bbsindex' %}">{% trans 'home' %}</a>
+        <span><a href="{% url 'node_view' node.id%}">-{{node.title}}</a></span>-->
+        <span style="font-size:18px; font-weight:bold;">发表主题</span>
+    </div>
+	<div style="padding-left:10px;font-size:14px;">
+	    <span>发表频道&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>
+	    <select class="selct" >
+		<option>新手频道</option>
+		<option><a href="{% url 'bbsindex' %}">{% trans 'home' %}</a></option>
+		<option>3</option>
+		</select>
+		
+		 <select class="selct" style="height:20px">
+		<option>新手交流</option>
+		<option><span><a href="{% url 'node_view' node.id%}">-{{node.title}}</a></span></option>
+		<option>3</option>
+		</select>
+	</div>
+    <div class="panel-body">
+    	{% if messages %}
+		<div class="messages">
+			{% for message in messages %}
+			<p class="text-{{ message.tags }}">
+				{{ message }}
+			</p>
+			{% endfor %}
+		</div>
+		{% endif %}
+        {% if request.user.is_authenticated %}
+        <form class="form" action="{% url 'create_topic' node.id%}" method="post" id="create_topic">
+            {% csrf_token %}
+             <div class="bbs_post_con textbox ">
+                <div style="margin-bottom: 6px;float:left;width:80px;"><label  for="title">{% trans 'title' %}{{ messages }}</label></div>
+				<div><input placeholder="{% trans 'title' %}" type="text" class="bbs_post_txt" id="title" name="title" />
+				</div>
+                
+                <div style="margin-bottom: 6px;float:left;width:80px;"><label for="content">{% trans 'content' %}</label></div>
+				<div> <textarea placeholder="{% trans 'content' %}"  class="bbs_post_textarea" id="content" name="content"  ></textarea>
+				<a id='addemoji'onclick="show_emoji()" style="padding-left: 5px; display:none;">
+				<img src="/static/emoji/img/grinning.png" title="添加表情" style="width: 23px;height: 23px;" /></a>
+				
+				</div>
+                {% include "emoji.html" %}
+               
+				
+				 <div style="padding-top: 5px">
+                <li class="yzm">
+                  <span>验证码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <input name="log_code" id="log_code" type="text" 
+                          onfocus="$('#code_pic').click();yzmshow()" />
+                   <a href="javascript:void(0);" id="yzm"><img id="code_pic" width="90" height="25" 
+                     onclick="this.setAttribute('src',{% url 'verifycode' %} + '?nocache='+Math.random());"
+                     src="{% url 'verifycode' %}"/></a>
+                    
+                </li>
+                </div>
+                <div style="margin-top:20px;height:100px;width:30px;"><input type="submit" class="bbs_post_btn"  value="发帖" /></div>
+               
+             </div>
+        </form>
+        <div class="previewer">
+
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            {% trans 'please sign in before post ' %}
+        </div>
+        <a href="{% url 'login' %}" class="btn btn-info">{% trans 'sign in' %}</a>
+        {% endif %}
+    </div>
+</div><!--end reply panel-->
+{% endblock %}
+{% block right %}
+{% include 'user-panel.html' %}
+{% include 'advert.html' %}
+{% include 'hot-topic.html' %}
+{% include 'essence_topic.html' %}
+{% include 'friendly-link.html' %}
+{% endblock %}
+{% block footer_ext %}
+<script src="/static/js/previewer.js"></script>
+<script type="text/javascript">
+    function insert_img() {
+        var tc = document.getElementById("content");
+        var tclen = tc.value.length;
+        tc.focus();
+        str = "<img>在此输入图片链接</img>"
+        tc.value = tc.value.substr(0, tc.selectionStart) + str + tc.value.substring(tc.selectionStart, tclen);
+    }
+</script>
+{% endblock %}
