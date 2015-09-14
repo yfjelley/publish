@@ -39,7 +39,6 @@ storage = FileSystemStorage(
     base_url='/static/upload/'
 )
 
-dict_code={}
 
 def index(request):
     hotspots = WeekHotSpot.objects.filter(status=1).order_by('?')
@@ -267,7 +266,7 @@ def register(request):
             username = cd['username']
             pwd1 = cd['password']
             pwd2 = cd['password2']
-            #em = cd['email']
+            em = cd['email']
             # nickname = cd['nickname']
             code = cd['vcode']
             ca = Captcha(request)
@@ -666,38 +665,3 @@ def disclaimer(request):
 
 def phone_infoPage(request):
     return render_to_response('test_phone.html', context_instance=RequestContext(request))
-
-
-import urllib2, urllib, hashlib, random
-def send_smscode(request):
-    phoneNum = request.POST.get('phoneNum', '')
-    print phoneNum
-    m = hashlib.md5()
-    m.update('cs20150727')
-    random_code = random.randint(1000, 9999)
-    dict_code['%s'%phoneNum] = random_code
-    print "the random_code %s" % dict_code
-    content = "您的验证码是：%s，有效期为五分钟。如非本人操作，可以不用理会"%random_code
-    print content
-    data = """
-              <Group Login_Name ="%s" Login_Pwd="%s" OpKind="0" InterFaceID="" SerType="xxxx">
-              <E_Time></E_Time>
-              <Item>
-              <Task>
-              <Recive_Phone_Number>%d</Recive_Phone_Number>
-              <Content><![CDATA[%s]]></Content>
-              <Search_ID>111</Search_ID>
-              </Task>
-              </Item>
-              </Group>
-           """ % ("cs20150727", m.hexdigest().upper(), int(phoneNum), content.decode("utf-8").encode("GBK"))
-
-    cookies = urllib2.HTTPCookieProcessor()
-    opener = urllib2.build_opener(cookies)
-    request = urllib2.Request(
-                               url = r'http://userinterface.vcomcn.com/Opration.aspx',
-                               headers= {'Content-Type':'text/xml'},
-                               data = data
-                              )
-    print "send phone"
-    print opener.open(request).read()

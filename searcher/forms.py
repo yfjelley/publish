@@ -92,11 +92,11 @@ class LoginForm(forms.Form):
 class RegisterForm(forms.Form):
     username = forms.CharField(
         required=True,
-        label=u"用户名",
-        error_messages={'required': '请输入用户名'},
+        label=u"手机号",
+        error_messages={'required': '请输入手机号'},
         widget=forms.TextInput(
             attrs={
-                'placeholder': u"用户名",
+                'placeholder': u"手机号",
                 'type': 'text',
                 'class': 'inputxt',
                 'ajaxurl': '/register/'
@@ -155,6 +155,23 @@ class RegisterForm(forms.Form):
     #         }
     #     ),
     # )
+
+    smscode = forms.CharField(
+        required=True,
+        label=u"短信验证码",
+        error_messages={'required': u'请输入短信验证码'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': u"短信验证码",
+                'type': 'text',
+                'name': 'smscode',
+                'class': 'inputxt',
+                #'ajaxurl': '/checkvcode/'
+            }
+        ),
+    )
+
+
     vcode = forms.CharField(
         required=True,
         label=u"验证码",
@@ -169,6 +186,8 @@ class RegisterForm(forms.Form):
             }
         ),
     )
+
+
 
     def valiatetype(self, a):
         global msg

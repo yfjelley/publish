@@ -37,7 +37,7 @@
             <form class="registerform" action="{% url 'register' %}" method="post" name="form1">
                 <ul>
                     <li>
-                        <label class="label"> 用户名：<span class="need">*</span></label>
+                        <label class="label"> 手机号码：<span class="need">*</span></label>
                         {{ form.username }}
 {#                        <input type="button" value="验证用户名是否存在？" name="un_valid" onclick="check_valid()">#}
                     </li>
@@ -51,14 +51,10 @@
                         {{ form.password2 }}
                     </li>
                     <li>
-                        <label class="label"> 电子邮箱：<span class="need">*</span></label>
-                        {{ form.email }}
+                        <label class="label">短信验证码：<span class="need">*</span></label>
+                            {{ form.smscode }}
+                            <input type="button" id="rulesubmit" style=" background-color:#4a3c70;position:absolute; z-index:1;width:88px;margin-left:10px;height:38px;margin-top:-5px; " value="发送验证码" />
                     </li>
-                    {#                    <li>#}
-                    {#                        <label class="label"> 昵称：<span class="need">*</span></label>#}
-                    {#                        {{ form.nickname }}#}
-                    {#                        {{ form.nickname.errors }}#}
-                    {#                    </li>#}
                     <li>
                         <label class="label">验证码：<span class="need">*</span></label>
                         {{ form.vcode }}
@@ -89,6 +85,12 @@
 </div>	
 <script type="text/javascript">
     $(function () {
+        $("#rulesubmit").click(function(){
+             var username = $("input[name=username]").val();
+             if (username){
+                 $.post("/send_smscode/", {"phoneNum":username}, function(){});}
+             else{alert("请输入手机号码！");}
+        });
         {% if form.username.errors %}
             {% for error in form.username.errors %}
                 alert('{{ error }}');
@@ -176,6 +178,8 @@
                     }
             );
         }
+
+
     }
 </script>
 {% include "footer.html" %}
