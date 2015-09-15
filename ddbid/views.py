@@ -24,7 +24,7 @@ from django.template.loader import get_template
 from django.core.files.storage import FileSystemStorage
 from ddbid.settings import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 
-from searcher.forms import ContactForm, SearchForm, LoginForm, UserInformationForm, RegisterForm, ForgetPWForm
+from searcher.forms import ContactForm, SearchForm, LoginForm, UserInformationForm, RegisterForm, ForgetPW
 from searcher.inner_views import index_loading, data_filter, result_sort, get_pageset, get_user_filter, user_auth, \
     refresh_header
 from searcher.models import Bid, UserFavorite, Platform, UserInformation, DimensionChoice, UserFilter, UserReminder, \
@@ -39,7 +39,7 @@ storage = FileSystemStorage(
     base_url='/static/upload/'
 )
 
-
+dict_code={}
 
 def index(request):
     hotspots = WeekHotSpot.objects.filter(status=1).order_by('?')
@@ -187,44 +187,7 @@ def login(request):
         return render_to_response('login.html', {'form': form, 'next': next},
                                   context_instance=RequestContext(request))
 
-def forgetpw(request):
-    if request.method == 'POST':
-        form = ForgetPWForm(request.POST)
-        if form.is_valid():
-            cd = form.clean()
-            username = cd['username']
-            _code = request.session.get('sms_code')
-            print "_code",_code
-            smscode = cd['smscode']
-            user = User.objects.get(username=username)
-            pw = user.userinformation.abcdefg
-            print type(pw), type(smscode), type(_code)
-            print user ,pw
 
-            if pw is not None and _code == int(smscode):
-                print 'index iiff'
-                user = auth.authenticate(username=username, password=pw)
-                if user is not None and user.is_active:
-                    auth.login(request, user)
-                    #return HttpResponse(u'登录成功')
-                    return HttpResponseRedirect(reverse('searchindex'))
-                else:
-                    return HttpResponse(u'输入错误')
-                    #return render_to_response('forgetpwd.html',{"form":form},
-                      #                context_instance=RequestContext(request))
-
-            else:
-                form.valiatetype(2)
-                return render_to_response('forget_password.html',{"form":form},
-                                      context_instance=RequestContext(request))
-
-        else:
-            return render_to_response('forget_password.html', {'form': form}, context_instance=RequestContext(request))
-    else:
-        form = ForgetPWForm()
-        return render_to_response('forget_password.html', {'form': form}, context_instance=RequestContext(request))
-
-"""
 def forgetpw(request):
     if request.method == 'POST':
         form = ForgetPW(request.POST)
@@ -256,7 +219,7 @@ def forgetpw(request):
     else:
         form = ForgetPW()
         return render_to_response('forget_password.html', {'form': form}, context_instance=RequestContext(request))
-"""
+
 
 def verifycode(request):
     figures = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -283,15 +246,20 @@ def checkvcode(request):
             return response
 
 def checksmscode(request):
+    print request
     if_smscode = request.POST.get('name', None)
-    _code = request.session.get("sms_code")
+    #print request.session["fav_color"]
+    print request.session.get("fav_color",False)
+    #print "fav_color",request.session["fav_color"]
+    print dict_code
+    _code = dict_code['smscode']
     print _code
-    print if_smscode
     if if_smscode:
         response = HttpResponse()
         response['Content-Type'] = "application/json"
         smscode = request.POST.get('param', None)
-        print smscode
+        print "smscode type %s %s"%(type(smscode), smscode)
+        print "_code type %s %s"%(type(_code), _code)
         if _code  == int(smscode):
             response.write('{"info": "","status": "y"}')
             return response
@@ -300,9 +268,7 @@ def checksmscode(request):
             return response
 
 def register(request):
-    print request
     if request.method == 'POST':
-        print "xxxx"
         response = HttpResponse()
         response['Content-Type'] = "text/javascript"
         u_ajax = request.POST.get('name', None)
@@ -317,19 +283,13 @@ def register(request):
                 response.write('{"info": "用户可以使用","status": "y"}')
                 return response
         form = RegisterForm(request.POST)
-        print form.errors
-        print dir(form)
-
         if form.is_valid():
-            print "ddd"
             cd = form.cleaned_data
             username = cd['username']
             pwd1 = cd['password']
             pwd2 = cd['password2']
             #em = cd['email']
             # nickname = cd['nickname']
-            smscode = cd['smscode']
-            print smscode
             code = cd['vcode']
             ca = Captcha(request)
             flag = 0
@@ -350,7 +310,7 @@ def register(request):
                 new_user = User.objects.create_user(username=username, password=pwd1)
                 new_user.save()
                 # initial={'photo_url': '/static/upload/default.png'}
-                u = UserInformation(user=new_user, photo_url='/static/upload/default.png', abcdefg=pwd1)
+                u = UserInformation(user=new_user, photo_url='/static/upload/default.png', email=em, abcdefg=pwd1)
                 u.save()
                 user = auth.authenticate(username=username, password=pwd1)
                 auth.login(request, user)
@@ -358,7 +318,6 @@ def register(request):
                 #直接定向到首页
                 return HttpResponseRedirect(reverse('searchindex'))
         else:
-            print "eeee"
             return render_to_response("reg.html", {'form': form}, context_instance=RequestContext(request))
     else:
         form = RegisterForm()
@@ -738,7 +697,10 @@ def send_smscode(request):
     m = hashlib.md5()
     m.update('cs20150727')
     random_code = random.randint(1000, 9999)
-    request.session["sms_code"] = random_code
+    request.session["fav_color"] = "blue"
+    print request.session["fav_color"]
+    dict_code['%s'%phoneNum] = random_code
+    print "the random_code %s" % dict_code
     content = "您的验证码是：%s，有效期为五分钟。如非本人操作，可以不用理会"%random_code
     print content
     data = """
@@ -763,4 +725,3 @@ def send_smscode(request):
                               )
     print "send phone"
     print opener.open(request).read()
-    return HttpResponse()
