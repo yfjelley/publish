@@ -300,9 +300,7 @@ def checksmscode(request):
             return response
 
 def register(request):
-    print request
     if request.method == 'POST':
-        print "xxxx"
         response = HttpResponse()
         response['Content-Type'] = "text/javascript"
         u_ajax = request.POST.get('name', None)
@@ -317,8 +315,6 @@ def register(request):
                 response.write('{"info": "用户可以使用","status": "y"}')
                 return response
         form = RegisterForm(request.POST)
-        print form.errors
-        print dir(form)
 
         if form.is_valid():
             print "ddd"
@@ -326,10 +322,7 @@ def register(request):
             username = cd['username']
             pwd1 = cd['password']
             pwd2 = cd['password2']
-            #em = cd['email']
-            # nickname = cd['nickname']
             smscode = cd['smscode']
-            print smscode
             code = cd['vcode']
             ca = Captcha(request)
             flag = 0
@@ -349,13 +342,12 @@ def register(request):
             elif pwd1 == pwd2 and f:
                 new_user = User.objects.create_user(username=username, password=pwd1)
                 new_user.save()
-                # initial={'photo_url': '/static/upload/default.png'}
+
                 u = UserInformation(user=new_user, photo_url='/static/upload/default.png', abcdefg=pwd1)
                 u.save()
                 user = auth.authenticate(username=username, password=pwd1)
                 auth.login(request, user)
-                # return refresh_header(request, user_auth(request, username, pwd1, None))
-                #直接定向到首页
+
                 return HttpResponseRedirect(reverse('searchindex'))
         else:
             print "eeee"

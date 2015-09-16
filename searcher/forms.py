@@ -129,34 +129,6 @@ class RegisterForm(forms.Form):
             }
         ),
     )
-    """
-    email = forms.EmailField(
-        required=True,
-        label=u"邮箱",
-        error_messages={'required': u'请输入邮箱'},
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': u"邮箱",
-                'type': 'text',
-                'name': 'mail',
-                'class': 'inputxt'
-            }
-        ),
-    )
-    """
-    # nickname = forms.CharField(
-    #     required=True,
-    #     label=u"昵称",
-    #     error_messages={'required': u'请输入昵称'},
-    #     widget=forms.TextInput(
-    #         attrs={
-    #             'placeholder': u"昵称",
-    #             'type': 'text',
-    #             'name': 'nickname',
-    #             'class': 'inputxt'
-    #         }
-    #     ),
-    # )
 
     smscode = forms.CharField(
         required=True,
@@ -189,10 +161,9 @@ class RegisterForm(forms.Form):
         ),
     )
 
-
-
     def valiatetype(self, a):
         global msg
+        print "a is ",a
         if a == 2:
             msg = u"用户已存在"
             self._errors["username"] = self.error_class([msg])

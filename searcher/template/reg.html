@@ -4,7 +4,7 @@
 {% load i18n %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>注册</title>
@@ -39,7 +39,6 @@
                     <li>
                         <label class="label"> 手机号码：<span class="need">*</span></label>
                         {{ form.username }}
-{#                        <input type="button" value="验证用户名是否存在？" name="un_valid" onclick="check_valid()">#}
                     </li>
 
                     <li>
@@ -50,10 +49,11 @@
                         <label class="label">确认密码：<span class="need">*</span></label>
                         {{ form.password2 }}
                     </li>
-                    <li>
                         <label class="label">短信验证码：<span class="need">*</span></label>
                             {{ form.smscode }}
-                            <input type="button" id="rulesubmit" style=" background-color:#4a3c70;position:absolute; z-index:1;width:88px;margin-left:10px;height:38px;margin-top:-5px; " value="发送验证码" />
+                    </li>
+                    <li>
+                        <input type="button" id="rulesubmit" style=" background-color:#4a3c70;position:absolute; z-index:1;width:88px;margin-left:10px;height:38px;margin-top:-5px; " value="发送验证码" />
                     </li>
                     <li>
                         <label class="label">验证码：<span class="need">*</span></label>
@@ -85,6 +85,7 @@
 </div>	
 <script type="text/javascript">
     $(function () {
+        alert(1);
         $("#rulesubmit").click(function(){
              var username = $("input[name=username]").val();
              if (username){
@@ -95,25 +96,28 @@
             {% for error in form.username.errors %}
                 alert('{{ error }}');
             {% endfor %}
-        {% endif %}
 
-        {% if form.password2.errors %}
+        {% elif form.password.errors %}
+            {% for error in form.password.errors %}
+                alert('{{ error }}');
+            {% endfor %}
+
+        {% elif form.password2.errors %}
             {% for error in form.password2.errors %}
                 alert('{{ error }}');
             {% endfor %}
-        {% endif %}
 
-        {% if form.email.errors %}
-            {% for error in form.email.errors %}
+        {% elif form.smscode.errors %}
+            {% for error in form.smscode.errors %}
                 alert('{{ error }}');
             {% endfor %}
-        {% endif %}
 
-        {% if form.vcode.errors %}
+        {% elif form.vcode.errors %}
             {% for error in form.vcode.errors %}
                 alert('{{ error }}');
             {% endfor %}
         {% endif %}
+
         //$(".registerform").Validform();  //就这一行代码！;
         var demo = $(".registerform").Validform({
             tiptype: 3,
@@ -135,7 +139,7 @@
         demo.addRule([
             {
                 ele: "#id_username",
-                datatype: "*1-200"
+                datatype: "m"
             },
             {
                 ele: "#id_password",
@@ -147,10 +151,6 @@
                 recheck: "password"
             },
             {
-                ele: "#id_email",
-                datatype: "e"
-            },
-            {
                 ele: "#id_vcode",
                 datatype: "n4"
             },
@@ -160,31 +160,6 @@
             }
         ]);
     });
-    //ajax验证username是否存在
-    function check_valid() {
-        var username = $("input[name=username]").val();
-        if(username.length > 0){
-            var valid_un = 'shuangwaiwai';
-            $.post("{% url 'register' %}",
-                    {
-                        name: username,
-                        valid_un: valid_un
-                    },
-                    function (data) {
-                        if (data == 5) {
-                            alert('用户名已存在');
-                            {#                $("input[name=return_data]").value='用户名已存在';#}
-                        } else if (data == 1) {
-                            alert('恭喜用户名可用');
-                            {#                $("input[name=return_data]").value='恭喜用户名可用';#}
-                        } else
-                            alert("yqdDB!")
-                    }
-            );
-        }
-
-
-    }
 </script>
 {% include "footer.html" %}
 </body>
