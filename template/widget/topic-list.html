@@ -30,7 +30,11 @@
            {% ifequal user.id None %}
             <dt><a href="{% url 'login' %}"><img title="{{t.user.username}}"src="{{t.user.userinformation.photo_url}}" width="42" height="42"></a></dt>
            {% else %}
-            <dt><a href="{% url 'user_info' t.user.id %}"><img title="{{t.user.username}}"src="{{t.user.userinformation.photo_url}}" width="42" height="42"></a></dt>
+                {% ifequal t.user.id None %}
+                <dt><a href="{% url 'user_info' 1 %}"><img title="{{t.user.username}}"src="{{t.user.userinformation.photo_url}}" width="42" height="42"></a></dt>
+                {else}
+                 <dt><a href="{% url 'user_info' t.user.id %}"><img title="{{t.user.username}}"src="{{t.user.userinformation.photo_url}}" width="42" height="42"></a></dt>
+                {% endifequal %}
            {% endifequal %}
            <dd>
                <h3><a href="{% url 'topic_view' t.id %}">{{t.title}}</a></h3>
@@ -39,8 +43,13 @@
                   {% ifequal user.id None %}
                       <a href="{% url 'login' %}">{{t.user.username}}</a> •
                   {% else %}
+
+                      {% ifequal t.user.id None %}
+                      <a href="{% url 'user_info' 1 %}">{{t.user.username}}</a> •
+                      {else}
                       <a href="{% url 'user_info' t.user.id %}">{{t.user.username}}</a> •
-                  {% endifequal %}
+                      {% endifequal %}
+                   {% endifequal %}
                    {{t.click}}浏览 • {{t.time_created | naturaltime}}
                </p>
            </dd>
